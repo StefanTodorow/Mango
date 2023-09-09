@@ -10,7 +10,7 @@ namespace Mango.Services.CouponAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class CouponAPIController : ControllerBase
-    {
+    { 
         private readonly AppDbContext _db = null;
         private IMapper _mapper = null;
         private ResponseDTO _response = null;
@@ -46,6 +46,24 @@ namespace Mango.Services.CouponAPI.Controllers
             try
             {
                 var obj = _db.Coupons.First(c => c.CouponId == id);
+                _response.Result = _mapper.Map<CouponDTO>(obj);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+
+            return _response;
+        }
+
+        [HttpGet]
+        [Route("GetByCode/{code}")]
+        public ResponseDTO GetByCode(string code)
+        {
+            try
+            {
+                var obj = _db.Coupons.First(c => c.CouponCode.ToLower() == code.ToLower());
                 _response.Result = _mapper.Map<CouponDTO>(obj);
             }
             catch (Exception ex)
