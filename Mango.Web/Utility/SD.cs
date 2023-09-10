@@ -1,4 +1,4 @@
-﻿namespace Mango.Web.Utillity
+﻿namespace Mango.Web.Utility
 {
     public class SD
     {
@@ -9,6 +9,6 @@
             PUT,
             DELETE
         }
-
+        public static string CouponAPIBase { get; set; }
     }
 }
