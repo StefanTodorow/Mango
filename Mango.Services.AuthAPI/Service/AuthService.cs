@@ -47,9 +47,31 @@ namespace Mango.Services.AuthAPI.Service
             return "There was a problem with the registration.";
         }
 
-        public Task<LoginResponseDTO> Login(LoginRequestDTO requestDTO)
+        public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
         {
-            throw new NotImplementedException();
+            var user = _db.ApplicationUsers
+                .FirstOrDefault(u => u.UserName.ToLower() == loginRequestDTO.UserName.ToLower());
+
+            bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
+
+            if (user == null || !isValid)
+                return new LoginResponseDTO() { User = null, Token = string.Empty };
+
+            UserDTO userDTO = new()
+            {
+                Email = user.Email,
+                Id = user.Id,
+                Name = user.Name,
+                PhoneNumber = user.PhoneNumber
+            };
+
+            LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
+            {
+                User = userDTO,
+                Token = string.Empty
+            };
+
+            return loginResponseDTO;
         }
     }
 }
