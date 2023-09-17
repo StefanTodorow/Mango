@@ -25,5 +25,10 @@ namespace Mango.Web.Controllers
             LoginRequestDTO loginRequestDTO = new();
             return View(loginRequestDTO);
         }
+
+        public IActionResult Logout()
+        {
+            return View();
+        }
     }
 }
