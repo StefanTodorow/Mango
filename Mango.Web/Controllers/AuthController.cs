@@ -56,6 +56,10 @@ namespace Mango.Web.Controllers
                     return RedirectToAction(nameof(Login));
                 }
             }
+            else
+            {
+                TempData["error"] = result.Message;
+            }
 
             var roleList = new List<SelectListItem>()
             {
@@ -90,10 +94,11 @@ namespace Mango.Web.Controllers
 
                 return RedirectToAction("Index", "Home");
             }
-
-            ModelState.AddModelError("CustomError", responseDTO.Message);
-
-            return View(obj);
+            else
+            {
+                TempData["error"] = responseDTO.Message;
+                return View(obj);
+            }
         }
 
         public async Task<IActionResult> Logout()
