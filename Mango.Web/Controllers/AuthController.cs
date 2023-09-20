@@ -10,10 +10,12 @@ namespace Mango.Web.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly ITokenProvider _tokenProvider;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, ITokenProvider tokenProvider)
         {
-                _authService = authService;
+            _authService = authService;
+            _tokenProvider = tokenProvider;
         }
 
         [HttpGet]
@@ -78,6 +80,8 @@ namespace Mango.Web.Controllers
             {
                 LoginResponseDTO loginResponseDTO = 
                     JsonConvert.DeserializeObject<LoginResponseDTO>(Convert.ToString(responseDTO.Result));
+
+                _tokenProvider.SetToken(loginResponseDTO.Token);
 
                 return RedirectToAction("Index", "Home");
             }
