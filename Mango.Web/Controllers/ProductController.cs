@@ -43,7 +43,7 @@ namespace Mango.Web.Controllers
 
                 if (response != null && response.IsSuccess)
                 {
-                    TempData["success"] = "Coupon created successfuly!";
+                    TempData["success"] = "Product created successfuly!";
 
                     return RedirectToAction(nameof(ProductIndex));
 
@@ -82,7 +82,44 @@ namespace Mango.Web.Controllers
 
             if (response != null && response.IsSuccess)
             {
-                TempData["success"] = "Coupon deleted successfuly!";
+                TempData["success"] = "Product deleted successfuly!";
+
+                return RedirectToAction(nameof(ProductIndex));
+            }
+            else
+            {
+                TempData["error"] = response?.Message;
+            }
+
+            return View(productDTO);
+        }
+
+        public async Task<IActionResult> ProductEdit(int productId)
+        {
+            ResponseDTO? response = await _productService.GetProductByIdAsync(productId);
+
+            if (response != null && response.IsSuccess)
+            {
+                ProductDTO? model = JsonConvert.DeserializeObject<ProductDTO>(Convert.ToString(response.Result));
+
+                return View(model);
+            }
+            else
+            {
+                TempData["error"] = response?.Message;
+            }
+
+            return NotFound();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ProductEdit(ProductDTO productDTO)
+        {
+            ResponseDTO? response = await _productService.UpdateProductAsync(productDTO);
+
+            if (response != null && response.IsSuccess)
+            {
+                TempData["success"] = "Product updated successfuly!";
 
                 return RedirectToAction(nameof(ProductIndex));
             }
