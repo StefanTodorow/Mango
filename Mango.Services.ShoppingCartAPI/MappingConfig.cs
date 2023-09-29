@@ -11,7 +11,9 @@ namespace Mango.Services.ShoppingCartAPI
             var mappingConfig = new MapperConfiguration(conf =>
             {
                 conf.CreateMap<CartHeader, CartHeaderDTO>();
+                conf.CreateMap<CartHeaderDTO, CartHeader>();
                 conf.CreateMap<CartDetails, CartDetailsDTO>();
+                conf.CreateMap<CartDetailsDTO, CartDetails>();
             });
 
             return mappingConfig;

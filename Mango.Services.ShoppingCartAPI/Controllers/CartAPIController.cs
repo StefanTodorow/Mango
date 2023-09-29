@@ -5,6 +5,7 @@ using Mango.Services.ShoppingCartAPI.Models.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.PortableExecutable;
 
 namespace Mango.Services.ShoppingCartAPI.Controllers
 {
@@ -28,42 +29,54 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
         {
             try
             {
-                var cartHeaderFromDb = await _db.CartHeaders
+                var cartHeaderFromDb = await _db.CartHeaders.AsNoTracking()
                     .FirstOrDefaultAsync(ch => ch.UserId == cartDTO.CartHeader.UserId);
 
                 if (cartHeaderFromDb is null)
-                {
-                    //create new header and details
+                {   //create new header and details
                     CartHeader cartHeader = _mapper.Map<CartHeader>(cartDTO.CartHeader);
+
                     _db.CartHeaders.Add(cartHeader);
                     await _db.SaveChangesAsync();
 
                     cartDTO.CartDetails.First().CartHeaderId = cartHeader.CartHeaderId;
+
                     _db.CartDetails.Add(_mapper.Map<CartDetails>(cartDTO.CartDetails.First()));
                     await _db.SaveChangesAsync();
                 }
                 else
-                {
-                    //check if details has same product
-                    var cartDetailsFromDb = await _db.CartDetails
+                {   //check if details has same product
+                    var cartDetailsFromDb = await _db.CartDetails.AsNoTracking()
                         .FirstOrDefaultAsync(cd => cd.ProductId == cartDTO.CartDetails.First().ProductId &&
                         cd.CartHeaderId == cartHeaderFromDb.CartHeaderId);
 
                     if (cartDetailsFromDb is null)
-                    {
-                        //create one
+                    {   //add new cart details
+                        cartDTO.CartDetails.First().CartHeaderId = cartHeaderFromDb.CartHeaderId;
+
+                        _db.CartDetails.Add(_mapper.Map<CartDetails>(cartDTO.CartDetails.First()));
+                        await _db.SaveChangesAsync();
                     }
                     else
-                    {
-                        //update quantity in cart details
+                    {   //update quantity in cart details
+                        cartDTO.CartDetails.First().Quantity += cartDetailsFromDb.Quantity;
+                        cartDTO.CartDetails.First().CartHeaderId = cartDetailsFromDb.CartHeaderId;
+                        cartDTO.CartDetails.First().CartDetailsId = cartDetailsFromDb.CartDetailsId;
+
+                        _db.CartDetails.Update(_mapper.Map<CartDetails>(cartDTO.CartDetails.First()));
+                        await _db.SaveChangesAsync();
                     }
                 }
+
+                _response.Result = cartDTO;
             }
             catch (Exception ex)
             {
                 _response.Message = ex.Message.ToString();
                 _response.IsSuccess = false;
             }
+
+            return _response;
         }
     }
 }
