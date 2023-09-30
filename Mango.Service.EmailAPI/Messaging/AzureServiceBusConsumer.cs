@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Mango.Service.EmailAPI.Services;
 using Mango.Services.EmailAPI.Models.DTO;
 using Newtonsoft.Json;
 using System.Text;
@@ -10,12 +11,14 @@ namespace Mango.Service.EmailAPI.Messaging
         private readonly string serviceBusConnectionString;
         private readonly string emailCartQueue;
         private readonly IConfiguration _configuration;
+        private readonly EmailService _emailService;
 
         private ServiceBusProcessor _emailCartProcessor;
 
-        public AzureServiceBusConsumer(IConfiguration configuration)
+        public AzureServiceBusConsumer(IConfiguration configuration, EmailService emailService)
         {
             _configuration = configuration;
+            _emailService = emailService;
 
             serviceBusConnectionString = _configuration.GetValue<string>("ServiceBusConnectionString");
             emailCartQueue = _configuration.GetValue<string>("TopicAndQueueNames:EmailShoppingCartQueue");
@@ -41,13 +44,11 @@ namespace Mango.Service.EmailAPI.Messaging
 
             try
             { //try log email
-
-
+                await _emailService.EmailCartAndLogAsync(objMessage);
                 await args.CompleteMessageAsync(args.Message);
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

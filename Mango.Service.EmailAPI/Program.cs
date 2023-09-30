@@ -1,5 +1,6 @@
 using Mango.Service.EmailAPI.Extensions;
 using Mango.Service.EmailAPI.Messaging;
+using Mango.Service.EmailAPI.Services;
 using Mango.Services.EmailAPI.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
 });
+
+var optionBuilder = new DbContextOptionsBuilder<AppDbContext>();
+optionBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
+builder.Services.AddSingleton(new EmailService(optionBuilder.Options));
 
 builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 
