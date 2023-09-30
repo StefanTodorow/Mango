@@ -22,6 +22,64 @@ namespace Mango.Web.Controllers
             return View(await LoadCartDTOBasedOnLoggedInUser());
         }
 
+        public async Task<IActionResult> Remove(int cartDetailsId)
+        {
+            var userId = User.Claims
+                .Where(c => c.Type == JwtRegisteredClaimNames.Sub)?
+                .FirstOrDefault()?
+                .Value;
+
+            var responseDTO = await _cartService.RemoveFromCartAsync(cartDetailsId);
+
+            if (responseDTO != null && responseDTO.IsSuccess)
+            {
+                TempData["success"] = "Shopping Cart updated successfully";
+                return RedirectToAction(nameof(CartIndex));
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ApplyCoupon(CartDTO cartDTO)
+        {
+            var userId = User.Claims
+                .Where(c => c.Type == JwtRegisteredClaimNames.Sub)?
+                .FirstOrDefault()?
+                .Value;
+
+            var responseDTO = await _cartService.ApplyCouponAsync(cartDTO);
+
+            if (responseDTO != null && responseDTO.IsSuccess)
+            {
+                TempData["success"] = "Shopping Cart updated successfully";
+                return RedirectToAction(nameof(CartIndex));
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveCoupon(CartDTO cartDTO)
+        {
+            cartDTO.CartHeader.CouponCode = string.Empty;
+
+            var userId = User.Claims
+                .Where(c => c.Type == JwtRegisteredClaimNames.Sub)?
+                .FirstOrDefault()?
+                .Value;
+
+            var responseDTO = await _cartService.ApplyCouponAsync(cartDTO);
+
+            if (responseDTO != null && responseDTO.IsSuccess)
+            {
+                TempData["success"] = "Shopping Cart updated successfully";
+                return RedirectToAction(nameof(CartIndex));
+            }
+
+            return View();
+        }
+
         private async Task<CartDTO> LoadCartDTOBasedOnLoggedInUser()
         {
             var userId = User.Claims
