@@ -2,7 +2,7 @@
 
 namespace Mango.Services.OrderAPI.Models
 {
-    public class OrderHeaderDTO
+    public class OrderHeader
     {
         [Key]
         public int OrderHeaderId { get; set; }
@@ -17,6 +17,6 @@ namespace Mango.Services.OrderAPI.Models
         public string? Status { get; set; }
         public string? PaymentIntentId { get; set; }
         public string? StripeSessionId { get; set;}
-        public IEnumerable<OrderDetailsDTO> OrderDetails { get; set; }
+        public IEnumerable<OrderDetails> OrderDetails { get; set; }
     }
 }
