@@ -9,6 +9,7 @@ using Mango.Services.OrderAPI.Utility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,8 @@ builder.Services.AddHttpClient("Product", u => u.BaseAddress = new Uri(builder.C
 
 builder.Services.AddScoped<IMessageBus, MessageBus>();
 builder.Services.AddScoped<IProductService, ProductService>();
+
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
