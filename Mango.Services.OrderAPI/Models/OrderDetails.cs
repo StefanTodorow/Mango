@@ -14,7 +14,7 @@ namespace Mango.Services.OrderAPI.Models
         public int ProductId { get; set; }
         [NotMapped]
         public ProductDTO? Product { get; set; }
-        public int Count { get; set; }
+        public int Quantity { get; set; }
         public string ProductName { get; set; }
         public double Price { get; set; }
     }

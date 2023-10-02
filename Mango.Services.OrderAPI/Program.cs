@@ -5,7 +5,7 @@ using Mango.Services.OrderAPI.Data;
 using Mango.Services.OrderAPI.Extensions;
 using Mango.Services.OrderAPI.Service;
 using Mango.Services.OrderAPI.Service.IService;
-using Mango.Services.OrderAPI.Utillity;
+using Mango.Services.OrderAPI.Utility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;

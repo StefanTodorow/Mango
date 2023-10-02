@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using System.Net.Http.Headers;
 
-namespace Mango.Services.OrderAPI.Utillity
+namespace Mango.Services.OrderAPI.Utility
 {
     public class BackendApiAuthenticationHttpClientHandler : DelegatingHandler
     {
@@ -9,7 +9,7 @@ namespace Mango.Services.OrderAPI.Utillity
 
         public BackendApiAuthenticationHttpClientHandler(IHttpContextAccessor httpContextAccessor)
         {
-                _contextAccessor = httpContextAccessor;
+            _contextAccessor = httpContextAccessor;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
