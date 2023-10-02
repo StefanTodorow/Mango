@@ -69,6 +69,11 @@ namespace Mango.Web.Controllers
             return View(cartDTO);
         }
 
+        public async Task<IActionResult> Confirmation(int orderId)
+        {
+            return View(orderId);
+        }
+
         [HttpPost]
         public async Task<IActionResult> ApplyCoupon(CartDTO cartDTO)
         {
