@@ -64,20 +64,41 @@ namespace Mango.Services.OrderAPI.Controllers
             {
                 var options = new SessionCreateOptions
                 {
-                    SuccessUrl = "https://example.com/success",
-                    LineItems = new List<SessionLineItemOptions>
-                        {
-                            new SessionLineItemOptions
-                            {
-                                Price = "price_H5ggYwtDq4fbrJ",
-                                Quantity = 2
-                            }
-                        },
+                    SuccessUrl = stripeRequestDTO.ApprovedUrl,
+                    CancelUrl = stripeRequestDTO.CancelUrl,
+                    LineItems = new List<SessionLineItemOptions>(),
                     Mode = "payment"
                 };
 
+                foreach (var item in stripeRequestDTO.OrderHeader.OrderDetails)
+                {
+                    var sessionLineItem = new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = (long)(item.Price * 100),
+                            Currency = "usd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = item.Product.Name
+                            }
+                        },
+                        Quantity = item.Quantity
+                    };
+
+                    options.LineItems.Add(sessionLineItem);
+                }
+
                 var service = new SessionService();
-                service.Create(options);
+                Session session = service.Create(options);
+
+                stripeRequestDTO.StripeSessionUrl = session.Url;
+                OrderHeader orderHeader = _db.OrderHeaders
+                    .First(oh => oh.OrderHeaderId == stripeRequestDTO.OrderHeader.OrderHeaderId);
+                orderHeader.StripeSessionId = session.Id;
+
+                _db.SaveChanges();
+                _response.Result = stripeRequestDTO;
             }
             catch (Exception ex)
             {
