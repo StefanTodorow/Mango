@@ -57,7 +57,7 @@ namespace Mango.Services.OrderAPI.Controllers
         }
 
         [Authorize]
-        [ActionName("CreateStripeSession")]
+        [HttpPost("CreateStripeSession")]
         public async Task<ResponseDTO> CreateStripeSession([FromBody] StripeRequestDTO stripeRequestDTO)
         {
             try

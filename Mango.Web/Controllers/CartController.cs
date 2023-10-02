@@ -62,8 +62,22 @@ namespace Mango.Web.Controllers
             OrderHeaderDTO orderHeaderDTO = JsonConvert.DeserializeObject<OrderHeaderDTO>(Convert.ToString(response.Result));
 
             if (response != null && response.IsSuccess)
-            {
-                //Get Stripe session and redirect to Stripe to place order
+            { //Get Stripe session and redirect to Stripe to place order
+                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+
+                StripeRequestDTO stripeRequestDTO = new()
+                {
+                    ApprovedUrl = domain + "cart/Confirmation?orderId=" + orderHeaderDTO.OrderHeaderId,
+                    CancelUrl = domain + "cart/checkout",
+                    OrderHeader = orderHeaderDTO
+                };
+
+                var stripeResponse = await _orderService.CreateStripeSession(stripeRequestDTO);
+                StripeRequestDTO stripeResponseResult = JsonConvert
+                    .DeserializeObject<StripeRequestDTO>(Convert.ToString(response.Result));
+                Response.Headers.Add("Location", stripeResponseResult.StripeSessionUrl);
+
+                return new StatusCodeResult(303);
             }
 
             return View(cartDTO);
