@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mango.MessageBus\Mango.MessageBus.csproj" />
+    <ProjectReference Include="..\Mango.Services.CouponAPI\Mango.Services.CouponAPI.csproj" />
   </ItemGroup>
 
 </Project>
