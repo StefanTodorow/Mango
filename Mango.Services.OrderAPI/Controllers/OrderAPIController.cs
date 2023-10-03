@@ -109,6 +109,8 @@ namespace Mango.Services.OrderAPI.Controllers
                     }
 
                     orderHeader.Status = newStatus;
+
+                    _db.SaveChanges();
                 }
             }
             catch (Exception)
