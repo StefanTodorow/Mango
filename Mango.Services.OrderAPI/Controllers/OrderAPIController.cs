@@ -8,6 +8,7 @@ using Mango.Services.OrderAPI.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Stripe;
 using Stripe.Checkout;
 
@@ -33,6 +34,56 @@ namespace Mango.Services.OrderAPI.Controllers
             _response = new ResponseDTO();
             _messageBus = messageBus;
             _configuration = configuration;
+        }
+
+        [Authorize]
+        [HttpGet("GetOrders")]
+        public ResponseDTO? Get(string? userId = "")
+        {
+            try
+            {
+                IEnumerable<OrderHeader> objList;
+
+                if (User.IsInRole(SD.RoleAdmin))
+                {
+                    objList = _db.OrderHeaders.Include(oh => oh.OrderDetails)
+                        .OrderByDescending(oh => oh.OrderHeaderId).ToList();
+                }
+                else
+                {
+                    objList = _db.OrderHeaders.Include(oh => oh.OrderDetails).Where(oh => oh.UserId == userId)
+                        .OrderByDescending(oh => oh.OrderHeaderId).ToList();
+                }
+
+                _response.Result = _mapper.Map<IEnumerable<OrderHeaderDTO>>(objList);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+
+            return _response;
+        }
+
+        [Authorize]
+        [HttpGet("GetOrder/{id:int}")]
+        public ResponseDTO? Get(int id)
+        {
+            try
+            {
+                OrderHeader orderHeader = _db.OrderHeaders.Include(oh => oh.OrderDetails)
+                    .First(oh => oh.OrderHeaderId == id);
+
+                _response.Result = _mapper.Map<OrderHeaderDTO>(orderHeader);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+
+            return _response;
         }
 
         [Authorize]

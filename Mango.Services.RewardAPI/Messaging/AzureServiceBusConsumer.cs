@@ -12,11 +12,11 @@ namespace Mango.Service.RewardAPI.Messaging
         private readonly string orderCreatedTopic;
         private readonly string orderCreatedRewardSubscription;
         private readonly IConfiguration _configuration;
-        private readonly IRewardService _rewardService;
+        private readonly RewardService _rewardService;
 
         private ServiceBusProcessor _rewardProcessor;
 
-        public AzureServiceBusConsumer(IConfiguration configuration, IRewardService rewardService)
+        public AzureServiceBusConsumer(IConfiguration configuration, RewardService rewardService)
         {
             _configuration = configuration;
             _rewardService = rewardService;
