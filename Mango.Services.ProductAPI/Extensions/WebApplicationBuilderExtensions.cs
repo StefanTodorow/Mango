@@ -26,7 +26,6 @@ namespace Mango.Services.ProductAPI.Extensions
                 {
                     ValidateIssuer = true,
                     ValidateIssuerSigningKey = true,
-                    ValidateAudience = true,
                     ValidIssuer = issuer,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidAudience = audience

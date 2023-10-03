@@ -26,7 +26,6 @@ namespace Mango.Services.OrderAPI.Extensions
                 {
                     ValidateIssuer = true,
                     ValidateIssuerSigningKey = true,
-                    ValidateAudience = true,
                     ValidIssuer = issuer,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidAudience = audience
