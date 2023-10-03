@@ -78,14 +78,40 @@ namespace Mango.Services.ProductAPI.Controllers
 
         [HttpPost]
         [Authorize(Roles = "ADMIN")]
-        public ResponseDTO Post([FromBody] ProductDTO couponDTO)
+        public ResponseDTO Post([FromBody] ProductDTO productDTO)
         {
             try
             {
-                var obj = _mapper.Map<Product>(couponDTO);
+                Product product = _mapper.Map<Product>(productDTO);
 
-                _db.Products.Add(obj);
+                _db.Products.Add(product);
                 _db.SaveChanges();
+
+                if (productDTO.Image != null)
+                {
+                    string fileName = product.ProductId + Path.GetExtension(productDTO.Image.FileName);
+                    string filePath = @"wwwroot\ProductImages\" + fileName;
+                    var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+
+                    using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
+                    {
+                        productDTO.Image.CopyTo(fileStream);
+                    }
+
+                    var baseUrl = $"{HttpContext.Request.Scheme}" +
+                        $"://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+                    product.ImageUrl = baseUrl + "/ProductImages/" + filePath;
+                    product.ImageLocalPath = filePath;
+                }
+                else
+                {
+                    product.ImageUrl = "https://placehold.co/600x400";
+                }
+
+                _db.Products.Update(product);
+                _db.SaveChanges();
+
+                _response.Result = _mapper.Map<ProductDTO>(product);
             }
             catch (Exception ex)
             {
@@ -98,11 +124,11 @@ namespace Mango.Services.ProductAPI.Controllers
 
         [HttpPut]
         [Authorize(Roles = "ADMIN")]
-        public ResponseDTO Put([FromBody] ProductDTO couponDTO)
+        public ResponseDTO Put([FromBody] ProductDTO productDTO)
         {
             try
             {
-                var obj = _mapper.Map<Product>(couponDTO);
+                var obj = _mapper.Map<Product>(productDTO);
 
                 _db.Products.Update(obj);
                 _db.SaveChanges();
