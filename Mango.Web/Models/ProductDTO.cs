@@ -11,7 +11,6 @@ namespace Mango.Web.Models
         public string CategoryName { get; set; }
         public string? ImageUrl { get; set; }
         public string? ImageLocalPath { get; set; }
-        public IFormFile? Image { get; set; }
         [Range(1, 100)]
         public int Quantity { get; set; } = 1;
     }
