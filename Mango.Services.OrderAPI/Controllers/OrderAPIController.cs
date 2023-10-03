@@ -7,6 +7,7 @@ using Mango.Services.OrderAPI.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
 using Stripe.Checkout;
 
 namespace Mango.Services.OrderAPI.Controllers
@@ -112,6 +113,38 @@ namespace Mango.Services.OrderAPI.Controllers
 
                 _db.SaveChanges();
                 _response.Result = stripeRequestDTO;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
+            }
+
+            return _response;
+        }
+
+        [Authorize]
+        [HttpPost("ValidateStripeSession")]
+        public async Task<ResponseDTO> ValidateStripeSession([FromBody] int orderHeaderId)
+        {
+            try
+            {
+                OrderHeader orderHeader = _db.OrderHeaders.First(oh => oh.OrderHeaderId == orderHeaderId);
+
+                var service = new SessionService();
+                Session session = service.Get(orderHeader.StripeSessionId);
+
+                var paymentService = new PaymentIntentService();
+                PaymentIntent paymentIntent = paymentService.Get(orderHeader.StripeSessionId);
+
+                if (paymentIntent.Status == "succeeded")
+                { //payment was successful
+                    orderHeader.PaymentIntentId = paymentIntent.Id;
+                    orderHeader.Status = SD.Status_Approved;
+
+                    _db.SaveChanges();
+                    _response.Result = _mapper.Map<OrderHeaderDTO>(orderHeader);
+                }
             }
             catch (Exception ex)
             {
