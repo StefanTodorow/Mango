@@ -1,3 +1,4 @@
+using Mango.Service.RewardAPI.Extensions;
 using Mango.Service.RewardAPI.Messaging;
 using Mango.Services.RewardAPI.Data;
 using Mango.Services.RewardAPI.Services;
@@ -39,6 +40,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 ApplyMigration();
+app.UseAzureServiceBusConsumer();
 
 app.Run();
 
