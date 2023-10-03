@@ -59,7 +59,14 @@ namespace Mango.Web.Service
                                 content.Add(new StreamContent(file.OpenReadStream()), prop.Name, file.FileName);
                             }
                         }
+                        else
+                        {
+                            content.Add(new StringContent(value == null ?
+                                string.Empty : value.ToString()));
+                        }
                     }
+
+                    message.Content = content;
                 }
                 else
                 {
@@ -68,6 +75,7 @@ namespace Mango.Web.Service
                         message.Content = new StringContent(JsonConvert.SerializeObject(requestDTO.Data), Encoding.UTF8, "application/json");
                     }
                 }
+
                 HttpResponseMessage? apiResponse = null;
 
                 switch (requestDTO.ApiType)

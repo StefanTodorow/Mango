@@ -26,6 +26,7 @@ namespace Mango.Services.ShoppingCartAPI.Extensions
                 {
                     ValidateIssuer = true,
                     ValidateIssuerSigningKey = true,
+                    ValidateAudience = true,
                     ValidIssuer = issuer,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidAudience = audience
