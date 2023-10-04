@@ -92,10 +92,12 @@ namespace Mango.Services.ProductAPI.Controllers
                     string fileName = product.ProductId + Path.GetExtension(productDTO.Image.FileName);
                     string filePath = @"wwwroot\ProductImages\" + fileName;
                     var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+
                     using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
                     {
                         productDTO.Image.CopyTo(fileStream);
                     }
+
                     var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
                     product.ImageUrl = baseUrl + "/ProductImages/" + fileName;
                     product.ImageLocalPath = filePath;
@@ -104,8 +106,10 @@ namespace Mango.Services.ProductAPI.Controllers
                 {
                     product.ImageUrl = "https://placehold.co/600x400";
                 }
+
                 _db.Products.Update(product);
                 _db.SaveChanges();
+
                 _response.Result = _mapper.Map<ProductDTO>(product);
             }
             catch (Exception ex)
@@ -119,14 +123,44 @@ namespace Mango.Services.ProductAPI.Controllers
 
         [HttpPut]
         [Authorize(Roles = "ADMIN")]
-        public ResponseDTO Put([FromBody] ProductDTO couponDTO)
+        public ResponseDTO Put(ProductDTO productDTO)
         {
             try
             {
-                var obj = _mapper.Map<Product>(couponDTO);
+                Product product = _mapper.Map<Product>(productDTO);
 
-                _db.Products.Update(obj);
+                if (productDTO.Image != null)
+                {
+                    if (!string.IsNullOrEmpty(product.ImageLocalPath))
+                    {
+                        var oldFilePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), product.ImageLocalPath);
+                        FileInfo file = new FileInfo(oldFilePathDirectory);
+
+                        if (file.Exists)
+                        {
+                            file.Delete();
+                        }
+                    }
+
+                    string fileName = product.ProductId + Path.GetExtension(productDTO.Image.FileName);
+                    string filePath = @"wwwroot\ProductImages\" + fileName;
+                    var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+
+                    using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
+                    {
+                        productDTO.Image.CopyTo(fileStream);
+                    }
+
+                    var baseUrl = $"{HttpContext.Request.Scheme}" +
+                        $"://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+                    product.ImageUrl = baseUrl + "/ProductImages/" + fileName;
+                    product.ImageLocalPath = filePath;
+                }
+
+                _db.Products.Update(product);
                 _db.SaveChanges();
+
+                _response.Result = _mapper.Map<ProductDTO>(product);
             }
             catch (Exception ex)
             {
