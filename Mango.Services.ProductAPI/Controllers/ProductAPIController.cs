@@ -93,6 +93,13 @@ namespace Mango.Services.ProductAPI.Controllers
                     string filePath = @"wwwroot\ProductImages\" + fileName;
                     var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
 
+                    FileInfo file = new FileInfo(filePathDirectory);
+                    //Remove any Image with same name if it exists in the directory
+                    if (file.Exists)
+                    {
+                        file.Delete();
+                    }
+
                     using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
                     {
                         productDTO.Image.CopyTo(fileStream);
