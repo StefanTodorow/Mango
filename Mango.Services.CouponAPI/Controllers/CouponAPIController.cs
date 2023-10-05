@@ -24,7 +24,8 @@ namespace Mango.Services.CouponAPI.Controllers
             _response = new ResponseDTO();
         }
 
-        [HttpGet]   
+        [HttpGet]
+        [Route("GetAll")]
         public ResponseDTO Get()
         {
             try
