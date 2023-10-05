@@ -24,6 +24,7 @@ namespace Mango.Services.ProductAPI.Controllers
         }
 
         [HttpGet]
+        [Route("GetAll")]
         public ResponseDTO Get()
         {
             try
