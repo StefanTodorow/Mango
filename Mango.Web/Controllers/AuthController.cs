@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace Mango.Web.Controllers
 {
@@ -25,51 +27,53 @@ namespace Mango.Web.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            var roleList = new List<SelectListItem>()
-            {
-                new SelectListItem{ Text = SD.RoleAdmin, Value = SD.RoleAdmin },
-                new SelectListItem{ Text = SD.RoleCustomer, Value = SD.RoleCustomer }
-            };
-
-            ViewBag.RoleList = roleList;
-
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegistrationRequestDTO obj)
+        public async Task<IActionResult> Register(RegistrationRequestDTO model)
         {
-            ResponseDTO result = await _authService.RegisterAsync(obj);
-            ResponseDTO assignRole;
+            const string EMAIL_PATTERN = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
 
-            if (result != null && result.IsSuccess)
+            if (!Regex.IsMatch(model.Email, EMAIL_PATTERN))
             {
-                if (string.IsNullOrEmpty(obj.Role))
-                    obj.Role = SD.RoleCustomer;
+                ModelState.AddModelError("Email", "Invalid email format.");
+            }
 
-                assignRole = await _authService.AssignRoleAsync(obj);
+            if (ModelState.IsValid)
+            {
+                ResponseDTO result = await _authService.RegisterAsync(model);
+                ResponseDTO assignRole;
 
-                if (assignRole != null && assignRole.IsSuccess)
+                if (result != null && result.IsSuccess)
                 {
-                    TempData["success"] = "Registration successful!";
+                    if (string.IsNullOrEmpty(model.Role))
+                        model.Role = SD.RoleCustomer;
 
-                    return RedirectToAction(nameof(Login));
+                    assignRole = await _authService.AssignRoleAsync(model);
+
+                    if (assignRole != null && assignRole.IsSuccess)
+                    {
+                        TempData["success"] = "Registration successful!";
+
+                        return RedirectToAction(nameof(Login));
+                    }
+                }
+                else
+                {
+                    TempData["error"] = result.Message;
                 }
             }
             else
             {
-                TempData["error"] = result.Message;
+                var errorMessages = ModelState.Values
+                    .SelectMany(entry => entry.Errors.Select(error => error.ErrorMessage));
+
+                string errorMessage = string.Join(" ", errorMessages);
+                TempData["error"] = errorMessage;
             }
 
-            var roleList = new List<SelectListItem>()
-            {
-                new SelectListItem{ Text = SD.RoleAdmin, Value = SD.RoleAdmin },
-                new SelectListItem{ Text = SD.RoleCustomer, Value = SD.RoleCustomer }
-            };
-
-            ViewBag.RoleList = roleList;
-
-            return View(obj);
+            return View(model);
         }
 
         [HttpGet]
@@ -86,7 +90,7 @@ namespace Mango.Web.Controllers
 
             if (responseDTO != null && responseDTO.IsSuccess)
             {
-                LoginResponseDTO loginResponseDTO = 
+                LoginResponseDTO loginResponseDTO =
                     JsonConvert.DeserializeObject<LoginResponseDTO>(Convert.ToString(responseDTO.Result));
 
                 await SignInUser(loginResponseDTO);

@@ -36,8 +36,8 @@ namespace Mango.Services.AuthAPI.Controllers
                 return BadRequest(_response);
             }
 
-            await _messageBus.PublishMessage(model.Email,
-                _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue"));
+            //await _messageBus.PublishMessage(model.Email,
+            //    _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue"));
 
             return Ok(_response);
         }
