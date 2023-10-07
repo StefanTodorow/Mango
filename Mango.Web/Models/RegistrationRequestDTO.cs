@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Mango.Web.Utility;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Mango.Web.Models
@@ -14,6 +15,6 @@ namespace Mango.Web.Models
         public string PhoneNumber { get; set; }
         [Required]
         public string Password { get; set; }
-        public string? Role { get; set; }
+        public string? Role { get; set; } = SD.RoleCustomer;
     }
 }
