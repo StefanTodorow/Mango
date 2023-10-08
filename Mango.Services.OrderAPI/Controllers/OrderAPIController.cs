@@ -96,17 +96,17 @@ namespace Mango.Services.OrderAPI.Controllers
 
                 if (orderHeader != null)
                 {
-                    if (newStatus == SD.Status_Cancelled)
-                    { //we must give a refund
-                        var refundOptions = new RefundCreateOptions
-                        {
-                            Reason = RefundReasons.RequestedByCustomer,
-                            PaymentIntent = orderHeader.PaymentIntentId
-                        };
+                    //if (newStatus == SD.Status_Cancelled)
+                    //{ //we must give a refund
+                    //    var refundOptions = new RefundCreateOptions
+                    //    {
+                    //        Reason = RefundReasons.RequestedByCustomer,
+                    //        PaymentIntent = orderHeader.PaymentIntentId
+                    //    };
 
-                        var service = new RefundService();
-                        Refund refund = service.Create(refundOptions);
-                    }
+                    //    var service = new RefundService();
+                    //    Refund refund = service.Create(refundOptions);
+                    //}
 
                     orderHeader.Status = newStatus;
 

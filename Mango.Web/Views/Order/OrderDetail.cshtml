@@ -106,6 +106,13 @@
 
                             @if (User.IsInRole(SD.RoleAdmin))
                             {
+                                @if (Model.Status == SD.Status_Pending)
+                                {
+                                    <button asp-action="OrderApproved" asp-route-orderId="@Model.OrderHeaderId"
+                                            type="submit" class="btn btn-success form-control my-1">
+                                        Approve Order
+                                    </button>
+                                }
                                 @if (Model.Status == SD.Status_Approved)
                                 {
                                     <button asp-action="OrderReadyForPickup" asp-route-orderId="@Model.OrderHeaderId" 

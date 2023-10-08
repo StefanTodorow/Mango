@@ -23,6 +23,21 @@ namespace Mango.Web.Controllers
             return View();
         }
 
+        [HttpPost("OrderApproved")]
+        public async Task<IActionResult> OrderApproved(int orderId)
+        {
+            var response = await _orderService.UpdateOrderStatus(orderId, SD.Status_Approved);
+
+            if (response != null && response.IsSuccess)
+            {
+                TempData["success"] = "Status updated successfully";
+
+                return RedirectToAction(nameof(OrderDetail), new { orderId = orderId });
+            }
+
+            return View();
+        }
+
         [HttpPost("OrderReadyForPickup")]
         public async Task<IActionResult> OrderReadyForPickup(int orderId)
         {
