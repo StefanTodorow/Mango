@@ -7,6 +7,7 @@ namespace Mango.Web.Models
     public class RegistrationRequestDTO
     {
         [Required]
+        [EmailAddress]
         public string Email { get; set; }
         [Required]
         [StringLength(16, MinimumLength = 3, ErrorMessage = "The field {0} must be between {2} and {1} characters long.")]

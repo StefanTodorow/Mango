@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Mango.Web.Controllers
 {
@@ -55,33 +57,36 @@ namespace Mango.Web.Controllers
         {
             CartDTO cart = await LoadCartDTOBasedOnLoggedInUser();
 
-            cart.CartHeader.Name = cartDTO.CartHeader.Name;
-            cart.CartHeader.PhoneNumber = cartDTO.CartHeader.PhoneNumber;
-            cart.CartHeader.Email = cartDTO.CartHeader.Email;
+            if (ModelState.IsValid)
+            {
+                cart.CartHeader.Name = cartDTO.CartHeader.Name;
+                cart.CartHeader.PhoneNumber = cartDTO.CartHeader.PhoneNumber;
+                cart.CartHeader.Email = cartDTO.CartHeader.Email;
 
-            var response = await _orderService.CreateOrderAsync(cart);
-            OrderHeaderDTO orderHeaderDTO = JsonConvert.DeserializeObject<OrderHeaderDTO>(Convert.ToString(response.Result));
+                var response = await _orderService.CreateOrderAsync(cart);
+                OrderHeaderDTO orderHeaderDTO = JsonConvert.DeserializeObject<OrderHeaderDTO>(Convert.ToString(response.Result));
 
-            if (response != null && response.IsSuccess)
-            { //Get Stripe session and redirect to Stripe to place order
-                var domain = Request.Scheme + "://" + Request.Host.Value + "/";
+                if (response != null && response.IsSuccess)
+                { //Get Stripe session and redirect to Stripe to place order
+                    var domain = Request.Scheme + "://" + Request.Host.Value + "/";
 
-                StripeRequestDTO stripeRequestDTO = new()
-                {
-                    ApprovedUrl = domain + "cart/Confirmation?orderId=" + orderHeaderDTO.OrderHeaderId,
-                    CancelUrl = domain + "cart/checkout",
-                    OrderHeader = orderHeaderDTO
-                };
+                    StripeRequestDTO stripeRequestDTO = new()
+                    {
+                        ApprovedUrl = domain + "cart/Confirmation?orderId=" + orderHeaderDTO.OrderHeaderId,
+                        CancelUrl = domain + "cart/checkout",
+                        OrderHeader = orderHeaderDTO
+                    };
 
-                var stripeResponse = await _orderService.CreateStripeSession(stripeRequestDTO);
-                StripeRequestDTO stripeResponseResult = JsonConvert
-                    .DeserializeObject<StripeRequestDTO>(Convert.ToString(response.Result));
-                Response.Headers.Add("Location", stripeResponseResult.StripeSessionUrl);
+                    var stripeResponse = await _orderService.CreateStripeSession(stripeRequestDTO);
+                    StripeRequestDTO stripeResponseResult = JsonConvert
+                        .DeserializeObject<StripeRequestDTO>(Convert.ToString(response.Result));
+                    Response.Headers.Add("Location", stripeResponseResult.StripeSessionUrl);
 
-                return new StatusCodeResult(303);
+                    return View("Confirmation", cart.CartHeader.CartHeaderId);
+                }
             }
 
-            return View(cartDTO);
+            return View(cart);
         }
 
         public async Task<IActionResult> Confirmation(int orderId)
@@ -100,7 +105,7 @@ namespace Mango.Web.Controllers
             }
             else
             { //Redirect to error page
-                
+
             }
 
             return View(orderId);
